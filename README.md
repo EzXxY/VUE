@@ -14,11 +14,11 @@
 
 &emsp;&emsp;我发现 [ipinfo.io](https://ipinfo.io) 的数据库很准确、支持查询 IPv6、调用其 API 可以获得 IP 的厂商信息及 ASN 等信息。那就干脆自己手撸一个前端 VUE 页面，自己写按照地区和 ASN 分类的表格函数，也支持表格里一行一个的 IP 直接复制。满足了自己的需求，如果你也想有一个这样的批量 IP 查询站，那可以用 Docker 在自己的机器上部署一个玩玩儿~。
 
-&emsp;【[我的此项目 GitHub 开源地址](https://github.com/EzXxY/VUE)】&emsp;【[我的此项目 Docker Hub 镜像地址](https://hub.docker.com/r/ezxxy/vue-ip/tags)】
+&emsp;【[我的此项目 GitHub 开源地址（就在这里）](https://github.com/EzXxY/VUE)】&emsp;【[我的此项目 Docker Hub 镜像地址](https://hub.docker.com/r/ezxxy/vue-ip/tags)】
 
-（欢迎来下载源码，自己修改 CSS 样式等，可以给我来一个免费的 ✨Star🌟 呦！~）
+（欢迎下载源码，自己修改 CSS 样式等，可以给我来一个免费的 ✨Star🌟 呦！~）
 
-> &emsp;简单看看用 **站长之家** 和 **UU在线工具** 批量查 IP 的***痛点！***（如果有其他好用的，请在评论区圈我，谢谢~）
+> &emsp;简单看看用 **站长之家** 和 **UU在线工具** 批量查 IP 的***痛点！***（如果有其他好用的，请提Issues，谢谢~）
 
 ![站长之家查IP.png](https://ezxxy.github.io/img/04-批量查询IP地区/站长之家查IP.png)
 ![UU在线工具查IP.png](https://ezxxy.github.io/img/04-批量查询IP地区/UU在线工具查IP.png)
