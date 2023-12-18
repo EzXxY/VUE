@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>批量查询IP地区及ASN</title>
+    <!-- 添加图标链接 -->
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 55px;
+            background-color: var(--bg-color, #f4f4f4);
+            color: var(--text-color, #333);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #app {
+            max-width: __APP_WIDTH__;
+            margin: 20px auto;
+            background-color: var(--app-color, #fff);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+            overflow-x: hidden;
+            background-color: var(--input-bg-color, #fff);
+            color: var(--input-text-color, #333);
+            border: 1px solid var(--input-border-color, #ccc);
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        input[type="button"] {
+            padding: 10px 15px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            background-color: var(--button-bg-color, #3498db);
+            color: var(--button-text-color, #fff);
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        input[type="button"]:hover {
+            background-color: var(--button-hover-bg-color, #2980b9);
+        }
+
+        .mode-toggle {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid var(--table-border-color, #ddd);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: var(--table-header-bg-color, #f9f9f9);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* 滚动条的通用样式 */
+        body::-webkit-scrollbar, textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        body::-webkit-scrollbar-track, textarea::-webkit-scrollbar-track {
+            background: var(--scrollbar-track-color, #f0f0f0);
+            border-radius: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb-color, #c0c0c0);
+            border-radius: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb:hover, textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover-color, #a0a0a0);
+        }
+
+        /* 白天模式下的滚动条样式 */
+        body:not(.dark-mode)::-webkit-scrollbar-track,
+        body:not(.dark-mode) textarea::-webkit-scrollbar-track {
+            --scrollbar-track-color: #f0f0f0; /* 滚动条轨道颜色 */
+        }
+
+        body:not(.dark-mode)::-webkit-scrollbar-thumb,
+        body:not(.dark-mode) textarea::-webkit-scrollbar-thumb {
+            --scrollbar-thumb-color: #c0c0c0; /* 滚动条滑块颜色 */
+        }
+
+        body:not(.dark-mode)::-webkit-scrollbar-thumb:hover,
+        body:not(.dark-mode) textarea::-webkit-scrollbar-thumb:hover {
+            --scrollbar-thumb-hover-color: #a0a0a0; /* 滚动条滑块悬停颜色 */
+        }
+
+        /* 黑夜模式下的滚动条样式 */
+        body.dark-mode::-webkit-scrollbar-track,
+        body.dark-mode textarea::-webkit-scrollbar-track {
+            --scrollbar-track-color: #3b4048; /* 滚动条轨道颜色 */
+        }
+
+        body.dark-mode::-webkit-scrollbar-thumb,
+        body.dark-mode textarea::-webkit-scrollbar-thumb {
+            --scrollbar-thumb-color: #565c66; /* 滚动条滑块颜色 */
+        }
+
+        body.dark-mode::-webkit-scrollbar-thumb:hover,
+        body.dark-mode textarea::-webkit-scrollbar-thumb:hover {
+            --scrollbar-thumb-hover-color: #6e7681; /* 滚动条滑块悬停颜色 */
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            --bg-color: #282c34;
+            --text-color: #abb2bf;
+            --app-color: #353b45;
+            --input-bg-color: #3b4048;
+            --input-text-color: #d7dae0;
+            --input-border-color: #4b5263;
+            --button-bg-color: #61afef;
+            --button-text-color: #282c34;
+            --button-hover-bg-color: #528bca;
+            --table-border-color: #4b5263;
+            --table-header-bg-color: #3b4048;
+            /* 新增滚动条颜色变量 */
+            --scrollbar-track-color: #3b4048; /* 暗模式滚动条轨道颜色 */
+            --scrollbar-thumb-color: #565c66; /* 暗模式滚动条滑块颜色 */
+            --scrollbar-thumb-hover-color: #6e7681; /* 暗模式滚动条滑块悬停颜色 */
+        }
+
+        /* Firefox 滚动条样式 */
+        body {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+        }
+
+        /* 黑夜模式下的Firefox滚动条样式 */
+        body.dark-mode {
+            scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+        }
+        
+        /* 始终显示滚动条，这样页面的宽度就不会因为滚动条的出现和消失而改变 */
+        html {
+            overflow-y: scroll;
+        }
+
+        /* 针对斜线表头的样式 */
+        .diagonal-header {
+            position: relative;
+            height: 60px; /* 可以根据需要调整，确保有足够的空间显示斜线和文本 */
+        }
+
+        .diagonal-header .diagonal-line {
+            content: '';
+            position: absolute;
+            height: 1px;
+            background-color: var(--table-border-color, #ddd); /* 使用与表格边框相同的颜色 */
+            top: 0;
+            left: 0;
+            transform-origin: top left;
+            /* 宽度和角度将通过 JavaScript 动态设置 */
+        }
+
+        .diagonal-header .bottom-left {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+        }
+
+        .diagonal-header .top-right {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <textarea v-model="ipList" placeholder="批量输入 IP 地址，每行一个"></textarea>
+        <input type="button" value="查询信息" @click="getBatchHistory">
+        <input type="button" value="一键分类" @click="classifyData">
+        <input type="button" value="导出结果" @click="exportResults">
+        <input type="button" class="mode-toggle" value="昼夜切换" @click="toggleDarkMode">
+        <!-- 修改表格部分 -->
+        <table v-if="classifiedHistory && orgList && countryList">
+            <tr>
+                <th ref="diagonalCell" class="diagonal-header">
+                    <span class="diagonal-line" ref="diagonalLine"></span>
+                    <span class="bottom-left">地区</span>
+                    <span class="top-right">ASN</span>
+                </th>                
+                <th v-for="org in orgList" :key="org">{{ org }}</th>
+            </tr>
+            <tr v-for="country in countryList" :key="country">
+                <td>{{ country }}</td>
+                <td v-for="org in orgList" :key="org + country">
+                    <ul>
+                        <li v-for="ip in classifiedHistory[country][org]" :key="ip">{{ ip }}</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+        <pre v-else-if="History !== null">{{ History }}</pre>
+    </div>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/vue.min.js"></script>
+    <script src="./js/xlsx.full.min.js"></script>
+    <script src="./js/FileSaver.min.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                History: null,
+                ipList: '',
+                darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+                classifiedHistory: null,
+                orgList: [],
+                countryList: [],
+            },
+            methods: {
+                getBatchHistory: function () {
+                    var that = this;
+                    var ips = new Set(that.ipList.split('\n').map(function (ip) {
+                        return ip.trim();
+                    }).filter(Boolean));
+                    var uniqueIps = Array.from(ips);
+                    var promises = uniqueIps.map(function (ip) {
+                        return axios.get('https://ipinfo.io/' + ip + '?token=__TOKEN__')
+                            .then(function (response) {
+                                return `${response.data.country}, ${response.data.ip}, ${response.data.org}`;
+                            })
+                            .catch(function (error) {
+                                return `${ip} isn't IP, ${error.message}`;
+                            });
+                    });
+
+                    Promise.all(promises)
+                        .then(function (results) {
+                            that.History = results.join('\n');
+                            that.classifiedHistory = null; // 清空分类数据
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                },
+                classifyData: function () {
+                    var that = this;
+                    var results = that.History.split('\n');
+                    var classifiedData = {};
+                    var orgSet = new Set();
+                    var countrySet = new Set();
+                    var otherIps = []; // 存储 undefined 国家或组织的 IP 地址
+
+                    results.forEach(function (result) {
+                        var parts = result.split(', ');
+                        var country = parts[0] !== 'undefined' ? parts[0] : null;
+                        var ip = parts[1];
+                        var org = parts[2] !== 'undefined' ? parts[2] : null;
+
+                        var validIp = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:))|(([0-9A-Fa-f]{1,4}:){5}((:[0-9A-Fa-f]{1,4}){1,2}|:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:))|(([0-9A-Fa-f]{1,4}:){4}((:[0-9A-Fa-f]{1,4}){1,3}|:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:))|(([0-9A-Fa-f]{1,4}:){3}((:[0-9A-Fa-f]{1,4}){1,4}|:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:))|(([0-9A-Fa-f]{1,4}:){2}((:[0-9A-Fa-f]{1,4}){1,5}|:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:))|(([0-9A-Fa-f]{1,4}:){1}((:[0-9A-Fa-f]{1,4}){1,6}|:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:))|(:((:[0-9A-Fa-f]{1,4}){1,7}|:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|:)))$/.test(ip);
+
+
+                        var noError = !result.includes("isn't IP") && !result.includes("Request failed");
+
+                        if (validIp && noError) {
+                            if (country && org) {
+                                orgSet.add(org);
+                                countrySet.add(country);
+
+                                if (!classifiedData[country]) {
+                                    classifiedData[country] = {};
+                                }
+                                if (!classifiedData[country][org]) {
+                                    classifiedData[country][org] = [];
+                                }
+                                classifiedData[country][org].push(ip);
+                            } else {
+                                // 收集 undefined 国家或组织的 IP 地址
+                                otherIps.push(ip);
+                            }
+                        }
+                    });
+
+                    // 如果存在 undefined 国家或组织的 IP 地址，则添加到 'Other' 类别
+                    if (otherIps.length > 0) {
+                        orgSet.add('Other');
+                        countrySet.add('Other');
+                        classifiedData['Other'] = classifiedData['Other'] || {};
+                        classifiedData['Other']['Other'] = otherIps;
+                    }
+
+                    that.orgList = Array.from(orgSet);
+                    that.countryList = Array.from(countrySet);
+                    that.classifiedHistory = classifiedData;
+                },
+                toggleDarkMode: function () {
+                    this.darkMode = !this.darkMode;
+                    document.body.classList.toggle('dark-mode', this.darkMode);
+                },
+                exportResults: function () {
+                    var wb = XLSX.utils.book_new();
+                    var data = [];
+
+                    // 添加表头
+                    data.push(['', ...this.orgList]);
+                    // 修改表头以包含斜线单元格的文本
+                    data[0][0] = '地区 / ASN';
+
+
+                    // 生成每一行数据
+                    this.countryList.forEach(country => {
+                        var row = [country];
+                        this.orgList.forEach(org => {
+                            var ips = (this.classifiedHistory[country] && this.classifiedHistory[country][org]) ? this.classifiedHistory[country][org].join('\n') : '';
+                            row.push(ips);
+                        });
+                        data.push(row);
+                    });
+
+                    var ws = XLSX.utils.aoa_to_sheet(data);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Classified Results');
+
+                    var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+                    function s2ab(s) {
+                        var buf = new ArrayBuffer(s.length);
+                        var view = new Uint8Array(buf);
+                        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                        return buf;
+                    }
+
+                    saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), 'classified_results.xlsx');
+                },
+                updateDiagonalLine: function () {
+                    var cell = this.$refs.diagonalCell; // 假设你在左上角单元格上设置了 ref="diagonalCell"
+                    if (cell) {
+                        var height = cell.offsetHeight;
+                        var width = cell.offsetWidth;
+                        var length = Math.sqrt(height * height + width * width); // 勾股定理计算斜线长度
+                        var angle = Math.atan2(height, width) * 180 / Math.PI; // 计算旋转角度
+
+                        var line = this.$refs.diagonalLine; // 假设你在斜线元素上设置了 ref="diagonalLine"
+                        if (line) {
+                            line.style.width = length + 'px';
+                            line.style.transform = 'rotate(' + angle + 'deg)';
+                        }
+                    }
+                }
+            },
+            created: function () {
+                var that = this;
+                // 应用暗模式样式
+                document.body.classList.toggle('dark-mode', that.darkMode);
+                // 监听暗模式的改变
+                window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+                    that.darkMode = e.matches;
+                    document.body.classList.toggle('dark-mode', that.darkMode);
+                });
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    // 表格渲染后更新斜线
+                    this.updateDiagonalLine();
+                });
+            },
+
+            watch: {
+                // 如果表格数据发生变化，也需要更新斜线
+                classifiedHistory: function () {
+                    this.$nextTick(this.updateDiagonalLine);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
