@@ -1,4 +1,4 @@
-# 1. 为什么要写这么一个项目？🤔
+## 1. 为什么要写这么一个项目？🤔
 
 &emsp;&emsp;网上可以找到的热门的批量查询 IP 的工具有几点不能满足我的需求：
 
@@ -29,7 +29,7 @@
 ![演示_2.png](https://ezxxy.github.io/img/04-批量查询IP地区/演示_2.png)
 
 
-# 2. Docker 部署
+## 2. Docker 部署
 
 &emsp;&emsp;本项目占用空间很小，基于最基本的 Nginx 镜像，总共只有 17.51 MB。我建议大家使用 Docker-compose 部署本项目，当然我会贴出 Docker run 的长命令。本项目支持昼夜模式的变化，默认跟随系统。你可以部署后切换系统的昼夜模式看看，会自动跟随其发生改变。
 
@@ -46,7 +46,7 @@
 
 ![TOKEN用量查询.jpg](https://ezxxy.github.io/img/04-批量查询IP地区/TOKEN用量查询.jpg)
 
-## &emsp; 2-1. 使用 Docker-compose 部署
+### &emsp; 2-1. 使用 Docker-compose 部署
 
 &emsp;&emsp;&emsp;确保自己已经安装了 Docker 和 Docker-compose，在任意你喜欢的路径下，新建一个 docker-compose.yml 文件。请把 **7845** 换成自己喜欢且还没有被占用的端口，并且把刚刚复制的 **TOKEN** 值替换掉。你也可以自定义网页内容所占屏幕的宽度，上面演示的效果所使用的比例就是默认的 **70%**。docker-compose.yml 文件内容如下：
 
@@ -72,7 +72,7 @@ services:
 docker-compose up -d
 ```
 
-## &emsp; 2-2. 使用 Docker run 命令部署
+### &emsp; 2-2. 使用 Docker run 命令部署
 
 &emsp;&emsp;&emsp;不想用 Docker-compose，而是想用 Docker 直接部署的小伙伴可以使用如下的命令，请把 **7845** 改成自己喜欢且没有被占用的端口号，TOKEN 中的值请用自己的：
 
@@ -82,7 +82,7 @@ docker run -d --restart=always -p 7845:7840 --name ezxxy-vue-ip -e "TOKEN=换成
 ```
 &emsp;
 
-# 3. 开放端、并配置反向代理，用域名解析并开启 https 访问
+## 3. 开放端口、并配置反向代理，用域名解析并开启 https 访问
 
 
 ```
